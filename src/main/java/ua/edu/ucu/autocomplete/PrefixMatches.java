@@ -3,9 +3,15 @@ package ua.edu.ucu.autocomplete;
 import ua.edu.ucu.tries.Trie;
 import ua.edu.ucu.tries.Tuple;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import static java.util.stream.StreamSupport.stream;
 
 public class PrefixMatches {
 
@@ -37,10 +43,22 @@ public class PrefixMatches {
     }
 
     public Iterable<String> wordsWithPrefix(String pref, int k) {
-        return StreamSupport
+         List<String> wordsSortedByLength = StreamSupport
                 .stream(wordsWithPrefix(pref).spliterator(), false)
-                .filter(word -> word.length() < pref.length() + k)
-                .collect(Collectors.toList());
+                .sorted(Comparator.comparingInt(String::length).reversed())
+                 .collect(Collectors.toList());
+
+         List<String> resultWords = new ArrayList<>();
+         for (int i = wordsSortedByLength.size()-1, countLengths = k; countLengths > 0 && i > 0; i--) {
+             String currentWord = wordsSortedByLength.get(i);
+             resultWords.add(currentWord);
+
+             if (currentWord.length() < wordsSortedByLength.get(i-1).length()) {
+                 countLengths--;
+             }
+         }
+
+         return resultWords;
     }
 
     public int size() {
